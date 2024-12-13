@@ -36,33 +36,54 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-# @app.route('/users', methods=['GET'])
-# def get_users():
-
-#     response_body = {
-#         "msg": "Hello, this is your GET /user response "
-#     }
-
-#     return jsonify(response_body), 200
-
-
-@app.route('/users', methods=['GET'])
-def get_users():
-    users = Users.query.all()
-    users_data = [user.serialize() for user in users]
-    response_body = {
-        "msg": "Here is the list of users",
-        "users": users_data
-    }
-    return jsonify(response_body), 200
 
 
 
+# Endpoint para obtener todas las personas de la base de datos.
 @app.route('/people', methods=['GET'])
 def get_people():
-    people = People.query.all()  # Consulta todos los registros de la tabla
+    people = People.query.all()  # Consulta todos los registros de la tabla People
     
-    return jsonify([person.serialize() for person in people])  # Devuelve los datos serializados en JSON
+    if not people:  # Si no hay usuarios en la lista
+        return jsonify({"msg": "No people found"}), 404
+    
+    # Devuelve los datos serializados en JSON
+    return jsonify([person.serialize() for person in people]), 200
+
+
+# Endpoint para recuperar una sola persona de la base de datos
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_one_people(people_id):
+    try:
+        # Se busca a la persona por su ID
+        person = People.query.get(people_id)
+        
+        # Si se encuentra la persona, se devuelve como respuesta JSON
+        if person:
+            return jsonify(person.serialize()), 200
+        else:
+            return jsonify({"message": "Member not found"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+    
+
+
+
+# Endpoint para obtener todas los usuarios de la base de datos.
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = Users.query.all()  # Consulta todos los registros de la tabla Users
+    
+    if not users:  # Si no hay usuarios en la lista
+        return jsonify({"msg": "No users found"}), 404
+    
+    # Devuelve los datos serializados en JSON
+    return jsonify([user.serialize() for user in users]), 200
+
+
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
