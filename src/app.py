@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users, People, Planets
+from models import db, Users, People, Planets, Vehicles
 #from models import Person
 
 app = Flask(__name__)
@@ -67,6 +67,9 @@ def get_one_people(people_id):
         return jsonify({"message": str(e)}), 500
 
     
+
+
+
 # Endpoint para obtener todos los planetas de la base de datos.
 @app.route('/planets', methods=['GET'])
 def get_planets():
@@ -95,6 +98,38 @@ def get_one_planet(planets_id):
         return jsonify({"message": str(e)}), 500
 
 
+
+
+# Endpoint para obtener todos los vehículos de la base de datos.
+@app.route('/vehicles', methods=['GET'])
+def get_vehicles():
+    vehicles = Vehicles.query.all()  # Consulta todos los registros de la tabla vehicles
+    
+    if not vehicles:  # Si no hay vehículos en la lista
+        return jsonify({"msg": "No vehicles found"}), 404
+    
+    # Devuelve los datos serializados en JSON
+    return jsonify([el.serialize() for el in vehicles]), 200
+
+
+# Endpoint para recuperar un solo vehículo de la base de datos
+@app.route('/vehicles/<int:vehicles_id>', methods=['GET'])
+def get_one_vehicle(vehicles_id):
+    try:
+        # Se busca al vehículo por su ID
+        vehicle = Vehicles.query.get(vehicles_id)
+        
+        # Si se encuentra el vehículo, se devuelve como respuesta JSON
+        if vehicle:
+            return jsonify(vehicle.serialize()), 200
+        else:
+            return jsonify({"message": "Vehicle not found"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+
+
+
 # Endpoint para obtener todas los usuarios de la base de datos.
 @app.route('/users', methods=['GET'])
 def get_users():
@@ -105,8 +140,6 @@ def get_users():
     
     # Devuelve los datos serializados en JSON
     return jsonify([user.serialize() for user in users]), 200
-
-
 
 
 
