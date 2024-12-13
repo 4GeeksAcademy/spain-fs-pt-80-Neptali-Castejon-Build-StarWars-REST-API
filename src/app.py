@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users, People
+from models import db, Users, People, Planets
 #from models import Person
 
 app = Flask(__name__)
@@ -67,7 +67,32 @@ def get_one_people(people_id):
         return jsonify({"message": str(e)}), 500
 
     
+# Endpoint para obtener todos los planetas de la base de datos.
+@app.route('/planets', methods=['GET'])
+def get_planets():
+    planets = Planets.query.all()  # Consulta todos los registros de la tabla Planets
+    
+    if not planets:  # Si no hay planetas en la lista
+        return jsonify({"msg": "No planets found"}), 404
+    
+    # Devuelve los datos serializados en JSON
+    return jsonify([el.serialize() for el in planets]), 200
 
+
+# Endpoint para recuperar una sola persona de la base de datos
+@app.route('/planets/<int:planets_id>', methods=['GET'])
+def get_one_planet(planets_id):
+    try:
+        # Se busca a la persona por su ID
+        planets = Planets.query.get(planets_id)
+        
+        # Si se encuentra la persona, se devuelve como respuesta JSON
+        if planets:
+            return jsonify(planets.serialize()), 200
+        else:
+            return jsonify({"message": "Planets not found"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
 
 
 # Endpoint para obtener todas los usuarios de la base de datos.
